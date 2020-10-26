@@ -4,10 +4,10 @@ import com.google.gson.annotations.SerializedName
 
 data class BaseModelResponse(
 
-    @SerializedName("Action") val action: String,
-    @SerializedName("StateCode") val stateCode: String,
-    @SerializedName("State") val state: String,
-    @SerializedName("Job") val job: Job
+        @SerializedName("Action") val action: String,
+        @SerializedName("StateCode") val stateCode: String,
+        @SerializedName("State") val state: String,
+        @SerializedName("Job") val job: JobResponse
 )
 
 data class JobResponse(
@@ -55,13 +55,13 @@ data class MetadataResponse(
 
 data class OutputsResponse(
 
-    @SerializedName("DeliveryState") val deliveryState: String,
-    @SerializedName("DeliveryDuration") val deliveryDuration: Int,
-    @SerializedName("HLS") val hLS: HLS,
-    @SerializedName("Streams") val streams: List<StreamsResponse>,
-    @SerializedName("Metadata") val metadata: Metadata,
-    @SerializedName("UID") val uID: String,
-    @SerializedName("Address") val address: String
+        @SerializedName("DeliveryState") val deliveryState: String,
+        @SerializedName("DeliveryDuration") val deliveryDuration: Int,
+        @SerializedName("HLS") val hLS: HLSResponse,
+        @SerializedName("Streams") val streams: List<StreamsResponse>,
+        @SerializedName("Metadata") val metadata: Metadata,
+        @SerializedName("UID") val uID: String,
+        @SerializedName("Address") val address: String
 )
 
 data class StreamsResponse(

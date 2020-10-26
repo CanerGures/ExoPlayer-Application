@@ -4,6 +4,7 @@ import android.os.Bundle
 import android.widget.FrameLayout
 import android.widget.ImageView
 import androidx.appcompat.app.AppCompatActivity
+import com.example.exoplayer.api.model.GetJobsList
 import com.example.exoplayer.model.MainDashboardModel
 import com.google.android.exoplayer2.ExoPlayer
 import com.google.android.exoplayer2.MediaItem
@@ -24,6 +25,7 @@ class MainActivity : AppCompatActivity() {
     private var playerView: PlayerView? = null
     private var player: SimpleExoPlayer? = null
     lateinit var currentCity: MainDashboardModel
+    lateinit var currentJobObject: GetJobsList
     private var playWhenReady = true
     private var currentWindow = 0
     private var playbackPosition: Long = 0
@@ -38,6 +40,7 @@ class MainActivity : AppCompatActivity() {
         backwardButton = findViewById(R.id.centerBackwardButton)
         doubleClickForward = findViewById(R.id.doubleClickBackward)
         doubleClickBackward = findViewById(R.id.doubleClickForward)
+        currentJobObject = intent.extras?.get("currentItem") as GetJobsList
     }
 
     override fun onStart() {
@@ -107,8 +110,8 @@ class MainActivity : AppCompatActivity() {
 
         playerView!!.player = player
         val mediaItem =
-            MediaItem.Builder()
-                .setUri(currentCity.streamUrl)
+                MediaItem.Builder()
+                        .setUri(currentJobObject.streamLink)
                 .setMimeType(MimeTypes.APPLICATION_MPD)
                 .build()
         player!!.addMediaItem(mediaItem)
