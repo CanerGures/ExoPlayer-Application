@@ -1,6 +1,7 @@
 package com.example.exoplayer.api.repo
 
 import com.example.exoplayer.api.apiservice.ApiService
+import com.example.exoplayer.api.apiservice.GetJobApiService
 import com.example.exoplayer.api.model.BaseModelPost
 import com.example.exoplayer.api.model.GetJobListModel
 
@@ -15,7 +16,7 @@ class JobRepository(
 }
 
 class GetJobListRepository(
-        private val service: ApiService,
+        private val service: GetJobApiService,
         private val getJobBody: GetJobListModel
 ) {
     fun getJobListRepo() = service.getJobList(getJobBody)

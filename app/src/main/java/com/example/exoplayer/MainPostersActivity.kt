@@ -5,11 +5,12 @@ import android.os.Bundle
 import android.widget.Button
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
+import androidx.lifecycle.Observer
 import androidx.lifecycle.observe
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import com.example.exoplayer.adapter.MainItemsRecyclerAdapter
-import com.example.exoplayer.api.apiservice.ApiService
+import com.example.exoplayer.adapter.GetJobListAdapter
+import com.example.exoplayer.api.apiservice.GetJobApiService
 import com.example.exoplayer.api.client.WebClient
 import com.example.exoplayer.api.model.*
 import com.example.exoplayer.api.repo.GetJobListRepository
@@ -24,14 +25,15 @@ class MainPostersActivity : AppCompatActivity() {
     lateinit var button: Button
 
     private var viewModel: CreateJobViewModel? = null
-    private val service: ApiService by lazy { WebClient.buildService(ApiService::class.java) }
+    private var getJobViewModel: GetJobListViewModel? = null
+    private val service: GetJobApiService by lazy { WebClient.buildService(GetJobApiService::class.java) }
     lateinit var context: Context
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main_posters)
         button = findViewById(R.id.postButton)
-
+        val getJobListAdapter = GetJobListAdapter()
         val jobFilter = JobFilter(
                 "2014-01-01T00:00:00",
                 1
@@ -44,12 +46,19 @@ class MainPostersActivity : AppCompatActivity() {
         )
 
         val rep = GetJobListRepository(service, postJobList)
-        viewModel = GetJobListViewModelFactory(rep).create(GetJobListViewModel::class.java)
+        getJobViewModel = GetJobListViewModelFactory(rep).create(GetJobListViewModel::class.java)
+        getJobViewModel?.fetchLive?.observe(this, Observer<List<GetJobsList>> {
+            with(getJobListAdapter) {
+
+            }
+        }) {
+
+            recycView = findViewById(R.id.recycItems)
+            recycView.adapter = getJobListAdapter
+            recycView.layoutManager = LinearLayoutManager(this)
+        }
 
 
-        recycView = findViewById(R.id.recycItems)
-        recycView.adapter = MainItemsRecyclerAdapter(list)
-        recycView.layoutManager = LinearLayoutManager(this)
 
         button.setOnClickListener {
             createJob()

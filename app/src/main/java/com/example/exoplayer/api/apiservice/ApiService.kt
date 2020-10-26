@@ -18,7 +18,9 @@ interface ApiService {
     @POST("/Cloud")
     fun createJob(@Body cJob: BaseModelPost): Call<BaseModelResponse>
 
+}
 
+interface GetJobApiService {
     @Headers(
             "Content-type:application/json"
     )
