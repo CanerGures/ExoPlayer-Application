@@ -34,7 +34,7 @@ class MainActivity : AppCompatActivity() {
         setContentView(R.layout.activity_main)
         playerView = findViewById(R.id.video_view)
         playbackStateListener = PlaybackStateListener()
-        currentCity = intent.extras?.get("currentItem") as MainDashboardModel
+
         playButton = findViewById(R.id.centerPlayButton)
         forwardButton = findViewById(R.id.centerForwardButton)
         backwardButton = findViewById(R.id.centerBackwardButton)
@@ -107,11 +107,11 @@ class MainActivity : AppCompatActivity() {
             player!!.seekTo(currentPosition - 10000)
 
         }
-
+        var link = "https://"+currentJobObject.streamLink
         playerView!!.player = player
         val mediaItem =
                 MediaItem.Builder()
-                        .setUri(currentJobObject.streamLink)
+                        .setUri(link)
                 .setMimeType(MimeTypes.APPLICATION_MPD)
                 .build()
         player!!.addMediaItem(mediaItem)

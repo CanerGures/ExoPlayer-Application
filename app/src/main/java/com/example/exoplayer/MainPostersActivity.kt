@@ -10,6 +10,7 @@ import androidx.lifecycle.observe
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.example.exoplayer.adapter.GetJobListAdapter
+import com.example.exoplayer.api.apiservice.ApiService
 import com.example.exoplayer.api.apiservice.GetJobApiService
 import com.example.exoplayer.api.client.WebClient
 import com.example.exoplayer.api.model.*
@@ -27,16 +28,17 @@ class MainPostersActivity : AppCompatActivity() {
     private var viewModel: CreateJobViewModel? = null
     private var getJobViewModel: GetJobListViewModel? = null
     private val service: GetJobApiService by lazy { WebClient.buildService(GetJobApiService::class.java) }
+    private val serviceCreate: ApiService by lazy { WebClient.buildService(ApiService::class.java) }
     lateinit var context: Context
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main_posters)
         button = findViewById(R.id.postButton)
-        val getJobListAdapter = GetJobListAdapter()
+
         val jobFilter = JobFilter(
                 "2014-01-01T00:00:00",
-                1
+                2
         )
 
         val postJobList = GetJobListModel(
@@ -47,15 +49,12 @@ class MainPostersActivity : AppCompatActivity() {
 
         val rep = GetJobListRepository(service, postJobList)
         getJobViewModel = GetJobListViewModelFactory(rep).create(GetJobListViewModel::class.java)
-        getJobViewModel?.fetchLive?.observe(this, Observer<List<GetJobsList>> {
-            with(getJobListAdapter) {
-
-            }
-        }) {
-
+        getJobViewModel?.fetchLive?.observe(this){
+            val list : List<GetJobsList> = (it.jobs)
             recycView = findViewById(R.id.recycItems)
-            recycView.adapter = getJobListAdapter
+            recycView.adapter = GetJobListAdapter(list)
             recycView.layoutManager = LinearLayoutManager(this)
+
         }
 
 
@@ -114,7 +113,7 @@ class MainPostersActivity : AppCompatActivity() {
                 job
         )
 
-        val rep = JobRepository(service, bodyModel)
+        val rep = JobRepository(serviceCreate, bodyModel)
         viewModel = ViewModelFactory(rep).create(CreateJobViewModel::class.java)
         observePost()
 
