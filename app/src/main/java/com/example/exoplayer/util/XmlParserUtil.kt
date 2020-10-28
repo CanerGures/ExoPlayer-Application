@@ -5,10 +5,12 @@ import org.xmlpull.v1.XmlPullParser
 import org.xmlpull.v1.XmlPullParserException
 import java.io.IOException
 import java.io.InputStream
+import java.net.HttpURLConnection
+import java.net.URL
 
 private val ns: String? = null
 
-data class Entry(val title: String?, val summary: String?, val link: String?)
+data class GroupList(val DASH: String?, val Thumbnail: String?)
 class StackOverflowXmlParser {
 
     @Throws(XmlPullParserException::class, IOException::class)
@@ -23,8 +25,8 @@ class StackOverflowXmlParser {
     }
 
     @Throws(XmlPullParserException::class, IOException::class)
-    private fun readFeed(parser: XmlPullParser): List<Entry> {
-        val entries = mutableListOf<Entry>()
+    private fun readFeed(parser: XmlPullParser): List<GroupList> {
+        val entries = mutableListOf<GroupList>()
 
         parser.require(XmlPullParser.START_TAG, ns, "GroupList")
         while (parser.next() != XmlPullParser.END_TAG) {
@@ -32,80 +34,66 @@ class StackOverflowXmlParser {
                 continue
             }
             // Starts by looking for the entry tag
-            if (parser.name == "DASH") {
-                entries.add(readEntry(parser))
-            } else {
-                skip(parser)
-            }
+            entries.add(readEntry(parser))
+
         }
         return entries
     }
 
     @Throws(XmlPullParserException::class, IOException::class)
-    private fun readEntry(parser: XmlPullParser): Entry {
+    private fun readEntry(parser: XmlPullParser): GroupList {
         parser.require(XmlPullParser.START_TAG, ns, "DASH")
-        var title: String? = null
-        var summary: String? = null
-        var link: String? = null
+        var DASH: String? = null
+        var Thumbnail: String? = null
         while (parser.next() != XmlPullParser.END_TAG) {
             if (parser.eventType != XmlPullParser.START_TAG) {
                 continue
             }
             when (parser.name) {
-                "Name" -> title = readTitle(parser)
-                "DRM" -> summary = readSummary(parser)
-                "StreamLink" -> link = readLink(parser)
+                "DASH" -> DASH = readDASH(parser)
+                "Thumbnail" -> Thumbnail = readThumbnail(parser)
                 else -> skip(parser)
             }
         }
-        return Entry(title, summary, link)
+        return GroupList(DASH, Thumbnail)
     }
 
     // Processes title tags in the feed.
     @Throws(IOException::class, XmlPullParserException::class)
-    private fun readTitle(parser: XmlPullParser): String {
-        parser.require(XmlPullParser.START_TAG, ns, "title")
-        val title = readText(parser)
-        parser.require(XmlPullParser.END_TAG, ns, "title")
-        return title
+    private fun readDASH(parser: XmlPullParser): String {
+        var link = ""
+        parser.require(XmlPullParser.START_TAG, ns, "DASH")
+        val tag = parser.name
+
+        if (tag == "DASH") {
+            val DRM = parser.getAttributeValue(null, "DRM")
+            val Name = parser.getAttributeValue(null, "Name")
+            link = parser.getAttributeValue(null, "StreamLink")
+            parser.nextTag()
+
+        }
+        parser.require(XmlPullParser.END_TAG, ns, "DASH")
+        return link
     }
 
     // Processes link tags in the feed.
     @Throws(IOException::class, XmlPullParserException::class)
-    private fun readLink(parser: XmlPullParser): String {
+    private fun readThumbnail(parser: XmlPullParser): String {
         var link = ""
-        parser.require(XmlPullParser.START_TAG, ns, "link")
+        parser.require(XmlPullParser.START_TAG, ns, "Thumbnail")
         val tag = parser.name
-        val relType = parser.getAttributeValue(null, "rel")
-        if (tag == "link") {
-            if (relType == "alternate") {
-                link = parser.getAttributeValue(null, "href")
-                parser.nextTag()
-            }
+
+        if (tag == "Thumbnail") {
+            val DRM = parser.getAttributeValue(null, "DRM")
+            val Name = parser.getAttributeValue(null, "Name")
+            link = parser.getAttributeValue(null, "StreamLink")
+            parser.nextTag()
+
         }
-        parser.require(XmlPullParser.END_TAG, ns, "link")
+        parser.require(XmlPullParser.END_TAG, ns, "Thumbnail")
         return link
     }
 
-    // Processes summary tags in the feed.
-    @Throws(IOException::class, XmlPullParserException::class)
-    private fun readSummary(parser: XmlPullParser): String {
-        parser.require(XmlPullParser.START_TAG, ns, "summary")
-        val summary = readText(parser)
-        parser.require(XmlPullParser.END_TAG, ns, "summary")
-        return summary
-    }
-
-    // For the tags title and summary, extracts their text values.
-    @Throws(IOException::class, XmlPullParserException::class)
-    private fun readText(parser: XmlPullParser): String {
-        var result = ""
-        if (parser.next() == XmlPullParser.TEXT) {
-            result = parser.text
-            parser.nextTag()
-        }
-        return result
-    }
 
     @Throws(XmlPullParserException::class, IOException::class)
     private fun skip(parser: XmlPullParser) {
@@ -118,6 +106,23 @@ class StackOverflowXmlParser {
                 XmlPullParser.END_TAG -> depth--
                 XmlPullParser.START_TAG -> depth++
             }
+        }
+    }
+
+
+    // Given a string representation of a URL, sets up a connection and gets
+// an input stream.
+    @Throws(IOException::class)
+    private fun downloadUrl(urlString: String): InputStream? {
+        val url = URL(urlString)
+        return (url.openConnection() as? HttpURLConnection)?.run {
+            readTimeout = 10000
+            connectTimeout = 15000
+            requestMethod = "GET"
+            doInput = true
+            // Starts the query
+            connect()
+            inputStream
         }
     }
 }

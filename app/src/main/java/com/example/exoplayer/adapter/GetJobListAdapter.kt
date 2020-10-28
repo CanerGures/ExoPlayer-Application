@@ -6,6 +6,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
 import android.widget.TextView
+import android.widget.Toast
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
 import com.example.exoplayer.MainActivity
@@ -52,30 +53,52 @@ class GetJobListAdapter(
                 .load(jpgLink)
                 .fitCenter()
                 .into(holder.imageUrlMain)
-        }else if(lastThree == "xml"){
-            val xmlLink = currentItem.streamLink
-            val link = xmlLink.takeLast(17)
-            getXml(link)
         }
 
 
         holder.itemView.setOnClickListener {
-            val intent = Intent(it.context, MainActivity::class.java)
-            intent.putExtra("currentItem", currentItem)
-            it.context.startActivity(intent)
+            if (lastThree == "xml") {
+                val xmlLink = currentItem.streamLink
+                val link = xmlLink.takeLast(17)
+                val model = getXml(link)
+                val s = model.string()
+                if (s.length < 250) {
+                    val m = s.drop(75)
+                    val k = m.dropLast(118)
+                    val linkFromXml = "https://${k}"
+                    val intent = Intent(it.context, MainActivity::class.java)
+                    intent.putExtra("currentLink", linkFromXml)
+                    it.context.startActivity(intent)
+                } else {
+                    val m = s.drop(80)
+                    val k = m.dropLast(208)
+                    val linkFromXml = "https://${k}"
+                    val intent = Intent(it.context, MainActivity::class.java)
+                    intent.putExtra("currentLink", linkFromXml)
+                    it.context.startActivity(intent)
+                }
+                Toast.makeText(holder.itemView.context, model.string(), Toast.LENGTH_LONG).show()
+
+            } else {
+                val intent = Intent(it.context, MainActivity::class.java)
+                intent.putExtra("currentItem", currentItem)
+                it.context.startActivity(intent)
+            }
 
         }
     }
 
-    private fun getXml(link: String) {
+
+    private fun getXml(link: String): ResponseBody {
         val retrofit =
             Retrofit.Builder()
                 .baseUrl("https://cdn.videobulut.com/")
                 .addConverterFactory(SimpleXmlConverterFactory.create())
                 .build()
-        val xmlService : XmlGet = retrofit.create(XmlGet::class.java)
-        val response : Response<ResponseBody> = xmlService.getXml(link).execute()
-
+        val xmlService: XmlGet = retrofit.create(XmlGet::class.java)
+        val call: Call<ResponseBody> = xmlService.getXml(link)
+        val response: Response<ResponseBody> = call.execute()
+        return response.body()
     }
 
     interface XmlGet{

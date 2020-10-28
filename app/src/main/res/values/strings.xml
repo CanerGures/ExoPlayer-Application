@@ -1,3 +1,5 @@
 <resources>
     <string name="app_name">ExoPlayer</string>
+    <string name="connection_error" />
+    <string name="xml_error" />
 </resources>
