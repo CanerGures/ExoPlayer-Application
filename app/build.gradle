@@ -60,4 +60,5 @@ dependencies {
     implementation 'com.squareup.retrofit2:converter-simplexml:2.2.0'
         implementation 'com.squareup.okhttp:okhttp:2.7.2'
     implementation 'com.gitlab.developerdeveloperdeveloper:androidutilslibrary:1.0.0'
+    implementation 'com.google.android.exoplayer:extension-ima:2.12.0'
 }

@@ -13,6 +13,6 @@
         android:layout_height="match_parent"
         android:layout_gravity="center"
         app:controller_layout_id="@layout/custom_player_layout"
-        app:show_subtitle_button="true" />
+        />
 
 </FrameLayout>

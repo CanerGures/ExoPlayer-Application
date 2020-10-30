@@ -1,18 +1,17 @@
 package com.example.exoplayer
 
+import android.content.pm.ActivityInfo
 import android.os.Bundle
 import android.view.View
 import android.widget.FrameLayout
 import android.widget.ImageView
+import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import com.ddd.androidutils.DoubleClick
 import com.ddd.androidutils.DoubleClickListener
 import com.example.exoplayer.api.model.GetJobsList
 import com.example.exoplayer.model.MainDashboardModel
-import com.google.android.exoplayer2.ExoPlayer
-import com.google.android.exoplayer2.MediaItem
-import com.google.android.exoplayer2.Player
-import com.google.android.exoplayer2.SimpleExoPlayer
+import com.google.android.exoplayer2.*
 import com.google.android.exoplayer2.trackselection.DefaultTrackSelector
 import com.google.android.exoplayer2.ui.PlayerView
 import com.google.android.exoplayer2.util.MimeTypes
@@ -31,7 +30,9 @@ class MainActivity : AppCompatActivity() {
     private var player: SimpleExoPlayer? = null
     lateinit var currentCity: MainDashboardModel
     lateinit var currentJobObject: GetJobsList
+    private var currentXmlLink: Any? = null
 
+    //private val player: SimpleExoPlayer by lazy { SimpleExoPlayer.Builder(this).build()}
     private var playWhenReady = true
     private var currentWindow = 0
     private var playbackPosition: Long = 0
@@ -47,6 +48,7 @@ class MainActivity : AppCompatActivity() {
         doubleClickBackward = findViewById(R.id.doubleClickBackward)
         closeButton = findViewById(R.id.closeButton)
         supportActionBar?.hide()
+        requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE
 
         val temp = intent.extras?.get("currentItem") as GetJobsList?
         if (temp != null) {
@@ -63,7 +65,7 @@ class MainActivity : AppCompatActivity() {
     override fun onStart() {
         super.onStart()
         if (Util.SDK_INT > 23) {
-            val currentXmlLink = intent.extras?.get("currentLink")
+            currentXmlLink = intent.extras?.get("currentLink")
             if (currentXmlLink != null) {
                 initializePlayerXml(currentXmlLink as String)
             } else {
@@ -76,7 +78,11 @@ class MainActivity : AppCompatActivity() {
         super.onResume()
 
         if (Util.SDK_INT <= 23 || player == null) {
-            initializePlayer()
+            if (currentXmlLink != null) {
+                initializePlayerXml(currentXmlLink as String)
+            } else {
+                initializePlayer()
+            }
 
         }
 
@@ -107,15 +113,20 @@ class MainActivity : AppCompatActivity() {
     }
 
 
+
     private fun initializePlayerXml(currentXmlLink: String) {
         if (player == null) {
             val trackSelector = DefaultTrackSelector(this)
             trackSelector.setParameters(
                 trackSelector.buildUponParameters().setMaxVideoSizeSd()
             )
-            player = SimpleExoPlayer.Builder(this)
-                .setTrackSelector(trackSelector)
-                .build()
+            try {
+                player = SimpleExoPlayer.Builder(this)
+                    .build()
+            } catch (e: Exception) {
+
+            }
+
         }
         if (player!!.bufferedPosition == 0L) {
             playButton.setImageResource(R.drawable.ic_pause)
@@ -132,6 +143,7 @@ class MainActivity : AppCompatActivity() {
 
 
         }
+
         val doubleClickForwardFun = DoubleClick(object : DoubleClickListener {
             override fun onSingleClickEvent(view: View?) {
 
@@ -154,6 +166,9 @@ class MainActivity : AppCompatActivity() {
             }
         })
 
+        doubleClickBackward.setOnClickListener(doubleClickBackwardFun)
+        doubleClickForward.setOnClickListener(doubleClickForwardFun)
+
 
         forwardButton.setOnClickListener {
             val currentPosition = player!!.currentPosition
@@ -164,8 +179,42 @@ class MainActivity : AppCompatActivity() {
             player!!.seekTo(currentPosition - 10000)
 
         }
-        doubleClickBackward.setOnClickListener(doubleClickBackwardFun)
-        doubleClickForward.setOnClickListener(doubleClickForwardFun)
+
+        /*doubleClickBackward.setOnClickListener(object : View.OnClickListener {
+
+            val gestureDetector =
+                GestureDetector(object : GestureDetector.SimpleOnGestureListener() {
+                    override fun onDoubleTap(e: MotionEvent?): Boolean {
+                        val currentPosition = player!!.currentPosition
+                        player!!.seekTo(currentPosition - 10000)
+                        return super.onDoubleTap(e)
+                    }
+                })
+
+            override fun onClick(v: View?) {
+
+            }
+
+
+        }
+        )
+
+        doubleClickForward.setOnClickListener(object : View.OnClickListener {
+            val gestureDetector =
+                GestureDetector(object : GestureDetector.SimpleOnGestureListener() {
+                    override fun onDoubleTap(e: MotionEvent?): Boolean {
+                        val currentPosition = player!!.currentPosition
+                        player!!.seekTo(currentPosition + 10000)
+                        return super.onDoubleTap(e)
+                    }
+                })
+
+            override fun onClick(v: View?) {
+
+            }
+
+
+        })*/
 
         val mediaItem =
             MediaItem.Builder()
@@ -173,13 +222,17 @@ class MainActivity : AppCompatActivity() {
                 .setMimeType(MimeTypes.APPLICATION_MPD)
                 .build()
         player!!.addMediaItem(mediaItem)
-        player!!.addMediaItem(mediaItem)
 
+        if (player!!.isCurrentWindowDynamic && player!!.duration == C.TIME_UNSET) {
+            Toast.makeText(this, "video is Live", Toast.LENGTH_LONG).show()
+        }
         playerView!!.player = player
         player!!.playWhenReady = playWhenReady
         player!!.seekTo(currentWindow, playbackPosition)
         playbackStateListener.let { player!!.addListener(it) }
         player!!.prepare()
+
+
     }
 
     private fun initializePlayer() {
@@ -206,6 +259,30 @@ class MainActivity : AppCompatActivity() {
             }
 
         }
+        val doubleClickForwardFun = DoubleClick(object : DoubleClickListener {
+            override fun onSingleClickEvent(view: View?) {
+
+            }
+
+            override fun onDoubleClickEvent(view: View?) {
+                val currentPosition = player!!.currentPosition
+                player!!.seekTo(currentPosition + 10000)
+            }
+        })
+
+        val doubleClickBackwardFun = DoubleClick(object : DoubleClickListener {
+            override fun onSingleClickEvent(view: View?) {
+
+            }
+
+            override fun onDoubleClickEvent(view: View?) {
+                val currentPosition = player!!.currentPosition
+                player!!.seekTo(currentPosition - 10000)
+            }
+        })
+
+        doubleClickBackward.setOnClickListener(doubleClickBackwardFun)
+        doubleClickForward.setOnClickListener(doubleClickForwardFun)
 
 
         forwardButton.setOnClickListener {
@@ -224,6 +301,9 @@ class MainActivity : AppCompatActivity() {
                 .setMimeType(MimeTypes.APPLICATION_MPD)
                 .build()
         player!!.addMediaItem(mediaItem)
+        if (player!!.isCurrentWindowDynamic || player!!.duration == C.TIME_UNSET) {
+            Toast.makeText(this, "video is Live", Toast.LENGTH_LONG).show()
+        }
         playerView!!.player = player
         player!!.playWhenReady = playWhenReady
         player!!.seekTo(currentWindow, playbackPosition)
@@ -231,12 +311,15 @@ class MainActivity : AppCompatActivity() {
         player!!.prepare()
     }
 
+
     private fun releasePlayer() {
         if (player != null) {
-            player!!.removeListener(playbackStateListener)
-            player!!.release()
             player!!.stop()
-            player = null
+            player!!.removeListener(playbackStateListener)
+            playerView!!.player = null
+            player!!.release()
+
+
         }
     }
 
@@ -253,5 +336,5 @@ class MainActivity : AppCompatActivity() {
 
         }
     }
-
 }
+
