@@ -2,7 +2,6 @@ package com.example.exoplayer
 
 import android.os.Bundle
 import android.os.StrictMode
-import android.widget.Button
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.observe
@@ -12,19 +11,17 @@ import com.example.exoplayer.adapter.GetJobListAdapter
 import com.example.exoplayer.api.apiservice.ApiService
 import com.example.exoplayer.api.apiservice.GetJobApiService
 import com.example.exoplayer.api.client.WebClient
-import com.example.exoplayer.api.model.*
+import com.example.exoplayer.api.model.GetJobListModel
+import com.example.exoplayer.api.model.GetJobsList
+import com.example.exoplayer.api.model.JobFilter
 import com.example.exoplayer.api.repo.GetJobListRepository
-import com.example.exoplayer.api.repo.JobRepository
 import com.example.exoplayer.api.viewmodel.CreateJobViewModel
 import com.example.exoplayer.api.viewmodel.GetJobListViewModel
 import com.example.exoplayer.api.viewmodel.GetJobListViewModelFactory
-import com.example.exoplayer.api.viewmodel.ViewModelFactory
 
 
 class MainPostersActivity : AppCompatActivity() {
     lateinit var recycView: RecyclerView
-    lateinit var button: Button
-
     private var viewModel: CreateJobViewModel? = null
     private var getJobViewModel: GetJobListViewModel? = null
     private val service: GetJobApiService by lazy { WebClient.buildService(GetJobApiService::class.java) }
@@ -35,7 +32,6 @@ class MainPostersActivity : AppCompatActivity() {
         StrictMode.setThreadPolicy(policy)
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main_posters)
-        button = findViewById(R.id.postButton)
         supportActionBar?.hide()
         val jobFilter = JobFilter(
             "2014-01-01T00:00:00",
@@ -57,66 +53,6 @@ class MainPostersActivity : AppCompatActivity() {
             recycView.layoutManager = LinearLayoutManager(this)
 
         }
-
-
-
-        button.setOnClickListener {
-            createJob()
-        }
-    }
-
-    private fun createJob() {
-
-        val streams = Streams(
-            "Video",
-            1,
-            "Video_250K",
-            250000,
-            416,
-            234,
-            "H264_BASELINE",
-            3.0,
-            4,
-            100,
-            "None",
-            "CAVLC",
-            false,
-            false,
-            false
-        )
-
-        val hls = HLS(
-            false,
-            false,
-            false,
-            false,
-            false,
-            false,
-            false
-        )
-        val inputs = Inputs(
-            "http://www.ngcloudvideo.com/sample/NgVideo.mp4",
-            listOf(streams)
-        )
-        val outputs = Outputs(
-            "videobulut://",
-            hls,
-            listOf(streams)
-        )
-        val job = Job(
-            "CreateJobSample",
-            listOf(inputs),
-            listOf(outputs)
-        )
-        val bodyModel = BaseModelPost(
-            "CreateJob",
-            "f986f2fbac4c6565a40e3e2310bd0603",
-            job
-        )
-
-        val rep = JobRepository(serviceCreate, bodyModel)
-        viewModel = ViewModelFactory(rep).create(CreateJobViewModel::class.java)
-        observePost()
 
     }
 

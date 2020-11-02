@@ -47,10 +47,12 @@
         android:orientation="horizontal"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
+        android:visibility="visible"
         app:layout_constraintStart_toStartOf="parent">
 
+
         <TextView
-            android:id="@id/exo_position"
+            android:id="@+id/exo_duration"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:includeFontPadding="false"
@@ -69,7 +71,7 @@
             app:unplayed_color="@color/white" />
 
         <TextView
-            android:id="@id/exo_duration"
+            android:id="@id/exo_position"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:includeFontPadding="false"
@@ -79,6 +81,7 @@
             android:textSize="14sp"
             android:textStyle="bold" />
     </LinearLayout>
+
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:id="@+id/centerButtons"
@@ -127,12 +130,21 @@
             android:id="@+id/closeButton"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginStart="16dp"
-            android:layout_marginLeft="16dp"
+            android:layout_marginStart="56dp"
+            android:layout_marginLeft="56dp"
             android:layout_marginTop="16dp"
             android:src="@drawable/ic_back_button"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
+
+        <ImageView
+            android:id="@+id/liveIcon"
+            android:layout_width="72dp"
+            android:layout_height="36dp"
+            android:src="@drawable/ic_live"
+            android:visibility="gone"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent" />
 
 
     </androidx.constraintlayout.widget.ConstraintLayout>
