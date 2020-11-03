@@ -23,7 +23,10 @@
             android:background="#00000000"
             android:clickable="true"
             android:focusable="true"
-            android:foreground="?attr/selectableItemBackground" />
+            android:foreground="?attr/selectableItemBackground">
+
+
+        </FrameLayout>
 
         <FrameLayout
             android:id="@+id/doubleClickForward"
@@ -38,13 +41,12 @@
 
     </LinearLayout>
 
-    <LinearLayout
+    <androidx.constraintlayout.widget.ConstraintLayout
         android:id="@+id/timebarLayout"
-        android:layout_width="wrap_content"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_gravity="bottom"
         android:baselineAligned="false"
-        android:orientation="horizontal"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         android:visibility="visible"
@@ -52,7 +54,7 @@
 
 
         <TextView
-            android:id="@+id/exo_duration"
+            android:id="@+id/exo_durationn"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:includeFontPadding="false"
@@ -60,18 +62,21 @@
             android:paddingRight="4dp"
             android:textColor="#ff323232"
             android:textSize="14sp"
-            android:textStyle="bold" />
+            android:textStyle="bold"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintStart_toStartOf="parent" />
 
-        <com.google.android.exoplayer2.ui.DefaultTimeBar
-            android:id="@id/exo_progress"
+        <SeekBar
+            android:id="@+id/customseekbar"
             android:layout_width="0dp"
-            android:layout_height="26dp"
-            android:layout_weight="1"
-            app:played_color="#B3001B"
-            app:unplayed_color="@color/white" />
+            android:layout_height="wrap_content"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toStartOf="@+id/exo_positionn"
+            app:layout_constraintStart_toEndOf="@+id/exo_durationn" />
+
 
         <TextView
-            android:id="@id/exo_position"
+            android:id="@+id/exo_positionn"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:includeFontPadding="false"
@@ -79,8 +84,12 @@
             android:paddingRight="4dp"
             android:textColor="#ff323232"
             android:textSize="14sp"
-            android:textStyle="bold" />
-    </LinearLayout>
+            android:textStyle="bold"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
 
 
     <androidx.constraintlayout.widget.ConstraintLayout
