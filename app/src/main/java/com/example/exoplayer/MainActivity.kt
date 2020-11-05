@@ -70,6 +70,11 @@ class MainActivity : AppCompatActivity(), SeekBar.OnSeekBarChangeListener {
             this@MainActivity.finish()
         }
 
+        liveIcon.setOnClickListener {
+            player!!.seekTo(player!!.duration - 1000)
+        }
+
+
     }
 
     override fun onStart() {
@@ -141,8 +146,6 @@ class MainActivity : AppCompatActivity(), SeekBar.OnSeekBarChangeListener {
     private fun initializeSeekBar() {
         customseekbar.progress = 0
         customseekbar.setOnSeekBarChangeListener(this)
-
-        Log.e("LIVE", player!!.isCurrentWindowLive.toString())
     }
 
 
@@ -242,6 +245,13 @@ class MainActivity : AppCompatActivity(), SeekBar.OnSeekBarChangeListener {
                 ).show()
                 Log.e("onPlayerError", "onPlayerError:$error")
                 finish()
+            }
+
+            override fun onIsPlayingChanged(isPlaying: Boolean) {
+                if (playonce == 0 && player!!.isCurrentWindowLive) {
+                    player!!.seekTo(player!!.duration)
+                    playonce += 1
+                }
             }
 
         })
@@ -351,11 +361,10 @@ class MainActivity : AppCompatActivity(), SeekBar.OnSeekBarChangeListener {
         })
 
         player!!.prepare()
-        Log.e("LIVEOncreate", player!!.isCurrentWindowLive.toString())
     }
 
     private fun setHandler() {
-        Log.e("LIVEHandlerTop", player!!.isCurrentWindowLive.toString())
+
         handler = Handler()
 
         runnable = Runnable {
